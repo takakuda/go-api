@@ -6,6 +6,7 @@ COMMIT?=$(shell git rev-parse --short HEAD)
 BUILD_TIME?=$(shell date -u '+%Y-%m-%d %H:%M:%S')
 APP?=advent
 PORT?=8000
+CONTAINER_IMAGE?=docker.io/takakuda/${APP}
 
 clean:
 	rm -rf ${APP}
@@ -17,7 +18,7 @@ build: clean
 		-o ${APP}
 
 container: build
-	docker build -t $(APP):$(RELEASE) .
+	docker build -t $(CONTAINER_IMAGE):$(RELEASE) .
 
 run: container
 	docker stop $(APP):$(RELEASE) || true && docker rm $(APP):$(RELEASE) || true \
@@ -27,3 +28,7 @@ run: container
 
 test:
 	go test -v -race ./...
+
+push: container
+	docker push ${CONTAINER_IMAGE}:${RELEASE}
+
